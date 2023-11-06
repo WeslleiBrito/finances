@@ -1,4 +1,4 @@
-import { UserDB } from "../types/types";
+import { EditUserDB, UserDB } from "../types/types";
 import { BaseDatabase } from "./BaseDatabase";
 
 
@@ -32,11 +32,11 @@ export class UserDatabase extends BaseDatabase {
         return result
     }
 
-    public editAccount = async (input: {id: string, name: string, password: string}): Promise<void> => {
+    public editAccount = async (input: EditUserDB): Promise<void> => {
         
-        const {id, name, password} = input
+        const {id, name, last_name, country, state, city, district, road, house_number, fone_number, password} = input
 
-        await UserDatabase.connection(UserDatabase.TABLE_USER).update({name, password}).where({id})
+        await UserDatabase.connection(UserDatabase.TABLE_USER).update({name, last_name, country, state, city, district, road, house_number, fone_number, password}).where({id})
 
     }
 

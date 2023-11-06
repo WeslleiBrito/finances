@@ -24,7 +24,19 @@ export class UserBusiness implements UserBusinessI{
 
     public signup = async (input: InputSignupDTO): Promise<OutputSignupDTO> => {
 
-        const {name, email, password} = input
+            const {name,
+                lastName,
+                cpfCnpj,
+                country,
+                state,
+                city,
+                district,
+                road,
+                houseNumber,
+                foneNumber,
+                email,
+                password
+            } = input
 
         const emailExist = await this.userDatabase.findUserByEmail(email)
 
@@ -39,6 +51,15 @@ export class UserBusiness implements UserBusinessI{
         const newUser = new User(
             id,
             name,
+            lastName,
+            cpfCnpj,
+            country,
+            state,
+            city,
+            district,
+            road,
+            houseNumber,
+            foneNumber,
             email,
             hashPassword,
             USER_ROLES.NORMAL,
@@ -49,6 +70,15 @@ export class UserBusiness implements UserBusinessI{
             {
                 id: newUser.getId(),
                 name: newUser.getName(),
+                cpf_cnpj: newUser.getCpfCnpj(),
+                last_name: newUser.getLastName(),
+                country: newUser.getCountry(),
+                state: newUser.getState(),
+                city: newUser.getCity(),
+                district: newUser.getDistrict(),
+                road: newUser.getRoad(),
+                house_number: newUser.getHouseNumber(),
+                fone_number: newUser.getFoneNumber(),
                 email: newUser.getEmail(),
                 password: newUser.getPassword(),
                 role: newUser.getRole(),
@@ -124,6 +154,15 @@ export class UserBusiness implements UserBusinessI{
         const newUser = new User(
             account.id,
             account.name,
+            account.last_name,
+            account.cpf_cnpj,
+            account.country,
+            account.state,
+            account.city,
+            account.district,
+            account.road,
+            account.house_number,
+            account.fone_number,
             account.email,
             account.password,
             account.role,
@@ -136,6 +175,14 @@ export class UserBusiness implements UserBusinessI{
         await this.userDatabase.editAccount({
             id: newUser.getId(),
             name: newUser.getName(),
+            last_name: newUser.getLastName(),
+            country: newUser.getCountry(),
+            state: newUser.getState(),
+            city: newUser.getCity(),
+            district: newUser.getDistrict(),
+            road: newUser.getRoad(),
+            house_number: newUser.getHouseNumber(),
+            fone_number: newUser.getFoneNumber(),
             password: newUser.getPassword()
         })
 

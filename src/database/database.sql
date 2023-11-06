@@ -3,9 +3,17 @@
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
-    role TEXT DEFAULT('NORMAL') NOT NULL,
+    last_name TEXT NOT NULL,
+    cpf_cnpj TEXT NOT NULL,
+    country TEXT NOT NULL,
+    state TEXT NOT NULL,
+    city TEXT NOT NULL,
+    road TEXT NOT NULL,
+    house_number TEXT NOT NULL,
+    fone_number TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL, 
+    role TEXT DEFAULT('NORMAL') NOT NULL,
 	created_at TEXT DEFAULT(DATETIME()) NOT NULL
 );
 

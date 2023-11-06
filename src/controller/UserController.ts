@@ -9,37 +9,59 @@ import { InputDeleteAccountSchema } from "../dtos/user/InputDeleteAccount.dto";
 
 
 export class UserController {
-    
-    constructor (
+
+    constructor(
         private userBusiness: UserBusiness
-    ){}
+    ) { }
 
     public signup = async (req: Request, res: Response) => {
-        
+
         try {
+            const { name,
+                lastName,
+                cpfCnpj,
+                country,
+                state,
+                city,
+                district,
+                road,
+                houseNumber,
+                foneNumber,
+                email,
+                password
+            } = req.body
 
             const input = InputSignupSchema.parse(
                 {
-                    name: req.body.name,
-                    email: req.body.email,
-                    password: req.body.password
+                    name,
+                    lastName,
+                    cpfCnpj,
+                    country,
+                    state,
+                    city,
+                    district,
+                    road,
+                    houseNumber,
+                    foneNumber,
+                    email,
+                    password
                 }
             )
 
             const output: OutputSignupDTO = await this.userBusiness.signup(input)
-            
+
             res.status(201).send(output)
-            
+
         } catch (error) {
-            if(error instanceof ZodError){
+            if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
-            }else if (error instanceof BaseError) {
+            } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
             } else {
                 res.send("Erro inesperado\n " + error)
             }
         }
-        
+
     }
 
     public login = async (req: Request, res: Response) => {
@@ -56,9 +78,9 @@ export class UserController {
             res.status(200).send(output)
 
         } catch (error) {
-            if(error instanceof ZodError){
+            if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
-            }else if (error instanceof BaseError) {
+            } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
             } else {
                 res.send("Erro inesperado\n " + error)
@@ -68,12 +90,35 @@ export class UserController {
 
     public editAccount = async (req: Request, res: Response) => {
         try {
+
+            const {
+                name,
+                lastName,
+                cpfCnpj,
+                country,
+                state,
+                city,
+                district,
+                road,
+                houseNumber,
+                foneNumber,
+            } = req.body
+            
             const input = InputEditAccountSchema.parse(
                 {
                     token: req.headers.authorization,
                     id: req.params.id,
-                    name: req.body.name,
-                    password: req.body.password
+                    password: req.body.password,
+                    name,
+                    lastName,
+                    cpfCnpj,
+                    country,
+                    state,
+                    city,
+                    district,
+                    road,
+                    houseNumber,
+                    foneNumber
                 }
             )
 
@@ -82,9 +127,9 @@ export class UserController {
             res.status(200).send(output)
 
         } catch (error) {
-            if(error instanceof ZodError){
+            if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
-            }else if (error instanceof BaseError) {
+            } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
             } else {
                 res.send("Erro inesperado\n " + error)
@@ -106,9 +151,9 @@ export class UserController {
             res.status(200).send(output)
 
         } catch (error) {
-            if(error instanceof ZodError){
+            if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
-            }else if (error instanceof BaseError) {
+            } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
             } else {
                 res.send("Erro inesperado\n " + error)
