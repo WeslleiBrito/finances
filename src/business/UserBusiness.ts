@@ -1,3 +1,4 @@
+import { AddressDatabase } from "../database/AddressDatabase";
 import { UserDatabase } from "../database/UserDatabase";
 import { InputDeleteAccountDTO, OutputDeleteAccountDTO } from "../dtos/user/InputDeleteAccount.dto";
 import { InputEditAccountDTO, OutputEditAccountDTO } from "../dtos/user/InputEditAccount.dto";
@@ -7,11 +8,12 @@ import { BadRequestError } from "../errors/BadRequestError";
 import { ConflictError } from "../errors/ConflictError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { Address } from "../models/Address";
 import { User } from "../models/User";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
-import { USER_ROLES} from "../types/types";
+import { AddressModel, USER_ROLES} from "../types/types";
 
 
 export class UserBusiness implements UserBusinessI{
@@ -19,24 +21,20 @@ export class UserBusiness implements UserBusinessI{
         private userDatabase: UserDatabase,
         private idGenerator: IdGenerator,
         private hashManager: HashManager,
-        private tokenManager: TokenManager
+        private tokenManager: TokenManager,
+        private addressDatabase: AddressDatabase
     ){}
 
     public signup = async (input: InputSignupDTO): Promise<OutputSignupDTO> => {
 
-            const {name,
-                lastName,
-                cpfCnpj,
-                country,
-                state,
-                city,
-                district,
-                road,
-                houseNumber,
-                foneNumber,
-                email,
-                password
-            } = input
+        const {name,
+            lastName,
+            cpfCnpj,
+            addresses,
+            foneNumber,
+            email,
+            password
+        } = input
 
         const emailExist = await this.userDatabase.findUserByEmail(email)
 
@@ -47,23 +45,38 @@ export class UserBusiness implements UserBusinessI{
         const id: string = this.idGenerator.generate()
 
         const hashPassword = await this.hashManager.hash(password)
+        const newDate = new Date().toISOString()
+
+        const addressesComplet: AddressModel[] = addresses.map(address => {
+
+            return {
+                cep: address.cep,
+                city: address.city,
+                country: address.country,
+                createdAt: newDate,
+                district: address.district,
+                houseNumber: address.houseNumber,
+                id: this.idGenerator.generate(),
+                road: address.road,
+                state: address.state,
+                updatedAt: newDate,
+                userId: id,
+                userName: name
+            }
+        })
 
         const newUser = new User(
             id,
             name,
             lastName,
-            cpfCnpj,
-            country,
-            state,
-            city,
-            district,
-            road,
-            houseNumber,
+            cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''),
+            new Address(addressesComplet),
             foneNumber,
             email,
             hashPassword,
             USER_ROLES.NORMAL,
-            new Date().toISOString()
+            newDate,
+            newDate
         )
 
         await this.userDatabase.signup(
@@ -72,12 +85,6 @@ export class UserBusiness implements UserBusinessI{
                 name: newUser.getName(),
                 cpf_cnpj: newUser.getCpfCnpj(),
                 last_name: newUser.getLastName(),
-                country: newUser.getCountry(),
-                state: newUser.getState(),
-                city: newUser.getCity(),
-                district: newUser.getDistrict(),
-                road: newUser.getRoad(),
-                house_number: newUser.getHouseNumber(),
                 fone_number: newUser.getFoneNumber(),
                 email: newUser.getEmail(),
                 password: newUser.getPassword(),
@@ -156,12 +163,6 @@ export class UserBusiness implements UserBusinessI{
             account.name,
             account.last_name,
             account.cpf_cnpj,
-            account.country,
-            account.state,
-            account.city,
-            account.district,
-            account.road,
-            account.house_number,
             account.fone_number,
             account.email,
             account.password,
