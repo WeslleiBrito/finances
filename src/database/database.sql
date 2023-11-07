@@ -5,17 +5,12 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     cpf_cnpj TEXT NOT NULL UNIQUE,
-    country TEXT NOT NULL,
-    state TEXT NOT NULL,
-    city TEXT NOT NULL,
-    road TEXT NOT NULL,
-    district TEXT NOT NULL,
-    house_number TEXT NOT NULL,
     fone_number TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL, 
     role TEXT DEFAULT('NORMAL') NOT NULL,
-	created_at TEXT DEFAULT(DATETIME()) NOT NULL
+	created_at TEXT DEFAULT(DATETIME()) NOT NULL,
+	updated_at TEXT DEFAULT(DATETIME()) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS addresses (
@@ -31,8 +26,7 @@ CREATE TABLE IF NOT EXISTS addresses (
     house_number TEXT NOT NULL,
     created_at TEXT DEFAULT(DATETIME()) NOT NULL,
     updated_at TEXT DEFAULT(DATETIME()) NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE 
-    FOREIGN KEY(user_name) REFERENCES users(name) ON UPDATE CASCADE ON DELETE CASCADE 
+    FOREIGN KEY(user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS posts (

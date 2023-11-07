@@ -13,7 +13,7 @@ import { User } from "../models/User";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
-import { AddressModel, USER_ROLES} from "../types/types";
+import { AddressDB, AddressModel, USER_ROLES} from "../types/types";
 
 
 export class UserBusiness implements UserBusinessI{
@@ -65,12 +65,14 @@ export class UserBusiness implements UserBusinessI{
             }
         })
 
+        const newAddresses = new Address(addressesComplet)
+
         const newUser = new User(
             id,
             name,
             lastName,
             cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''),
-            new Address(addressesComplet),
+            newAddresses,
             foneNumber,
             email,
             hashPassword,
@@ -89,10 +91,31 @@ export class UserBusiness implements UserBusinessI{
                 email: newUser.getEmail(),
                 password: newUser.getPassword(),
                 role: newUser.getRole(),
-                created_at: newUser.getCreatedAt()
+                created_at: newUser.getCreatedAt(),
+                updated_at: newUser.getUpdateAt()
             }
         )
         
+        const newAaddressesDB: AddressDB[] = newAddresses.getAdresses().map(address => {
+
+            return {
+                cep: address.cep,
+                city: address.city,
+                country: address.country,
+                created_at: address.createdAt,
+                district: address.district,
+                house_number: address.houseNumber,
+                id: address.id,
+                road: address.road,
+                state: address.state,
+                updated_at: address.updatedAt,
+                user_id: address.userId,
+                user_name: address.userName
+            }
+        })
+
+        await this.addressDatabase.createAddress(newAaddressesDB)
+
         const token = this.tokenManager.createToken(
             {
                 id: newUser.getId(),
@@ -158,33 +181,56 @@ export class UserBusiness implements UserBusinessI{
             throw new BadRequestError("Apenas o proprietário da conta tem permissão para alterar alguma informação.")
         }
 
+        const addressesExist = await this.addressDatabase.findAddressesByUserId(id)
+
+        if(!addressesExist){
+            throw new NotFoundError("O endereço informada não existe")
+        }
+
+        const addresses: AddressModel[] = addressesExist.map(address => {
+            return {
+                cep: address.cep,
+                city: address.city,
+                country: address.country,
+                createdAt: address.created_at,
+                district: address.district,
+                houseNumber: address.house_number,
+                id: address.id,
+                road: address.road,
+                state: address.state,
+                updatedAt: address.updated_at,
+                userId: address.user_id,
+                userName: address.user_name
+            }
+        })
+
+        const addressObject = new Address(addresses)
+
         const newUser = new User(
             account.id,
             account.name,
             account.last_name,
             account.cpf_cnpj,
+            addressObject,
             account.fone_number,
             account.email,
             account.password,
             account.role,
-            account.created_at
+            account.created_at,
+            account.updated_at
         )
 
         newUser.setName(name || newUser.getName())
         newUser.setPassword(password || newUser.getPassword())
+        newUser.setUpdateAt(new Date().toISOString())
 
         await this.userDatabase.editAccount({
             id: newUser.getId(),
             name: newUser.getName(),
             last_name: newUser.getLastName(),
-            country: newUser.getCountry(),
-            state: newUser.getState(),
-            city: newUser.getCity(),
-            district: newUser.getDistrict(),
-            road: newUser.getRoad(),
-            house_number: newUser.getHouseNumber(),
             fone_number: newUser.getFoneNumber(),
-            password: newUser.getPassword()
+            password: newUser.getPassword(),
+            updated_at: newUser.getUpdateAt()
         })
 
         return {

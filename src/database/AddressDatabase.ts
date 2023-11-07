@@ -9,6 +9,13 @@ export class AddressDatabase extends BaseDatabase {
     public createAddress = async (input: Array<AddressDB>) => {
 
         await AddressDatabase.connection(AddressDatabase.TABLE_ADDRESS).insert(input)
-        
+
+    }
+
+    public findAddressesByUserId = async (userId: string): Promise<AddressDB[] | undefined> => {
+
+        const result: AddressDB[] | undefined = await AddressDatabase.connection(AddressDatabase.TABLE_ADDRESS).where({user_id: userId})
+
+        return result
     }
 }

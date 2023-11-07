@@ -28,21 +28,17 @@ export interface UserDB {
     email: string,
     password: string,
     role: USER_ROLES,
-    created_at: string
+    created_at: string,
+    updated_at: string
 }
 
 export interface EditUserDB {
     id: string,
     name: string,
     last_name: string,
-    country: string,
-    state: string,
-    city: string,
-    district: string,
-    road: string,
-    house_number: string,
     fone_number: string,
-    password: string
+    password: string,
+    updated_at: string
 }
 
 export interface AddressModel {
