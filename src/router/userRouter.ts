@@ -7,6 +7,7 @@ import { HashManager } from "../services/HashManager"
 import { TokenManager } from "../services/TokenManager"
 import { AddressDatabase } from "../database/AddressDatabase"
 import { PhoneDatabase } from "../database/PhoneDatabase"
+import { ValidateCPFCNPJ } from "../services/ValidateCPFCNPJ"
 
 
 export const userRouter = express.Router()
@@ -19,7 +20,8 @@ const newUserController = new UserController(
         new HashManager(),
         new TokenManager(),
         new AddressDatabase(),
-        new PhoneDatabase()
+        new PhoneDatabase(),
+        new ValidateCPFCNPJ()
     )
 )
 

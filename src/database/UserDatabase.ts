@@ -25,6 +25,13 @@ export class UserDatabase extends BaseDatabase {
         return result
     }
 
+    public findUserByCPFCNPJ = async (cpfCnpj: string): Promise<UserDB | undefined> => {
+        
+        const [result]: UserDB[] | undefined[] = await UserDatabase.connection(UserDatabase.TABLE_USER).where({cpf_cnpj: cpfCnpj})
+       
+        return result
+    }
+
     public findRole = async (role: string): Promise<UserDB | undefined> => {
         
         const [result]: UserDB[] | undefined[] = await UserDatabase.connection(UserDatabase.TABLE_USER).where({role})
@@ -53,6 +60,7 @@ export interface UserDatabaseI {
     signup (input: UserDB): Promise<void>
     findUserById(id: string): Promise<UserDB | undefined>
     findUserByEmail(email: string): Promise<UserDB | undefined>
+    findUserByCPFCNPJ(cpfCnpj: string): Promise<UserDB | undefined>
     findRole(role: string): Promise<UserDB | undefined>
     editAccount(input: {id: string, name: string, password: string}): Promise<void>
     deleteAccount(input: string): Promise<void>
