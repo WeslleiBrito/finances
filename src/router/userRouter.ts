@@ -6,6 +6,7 @@ import { IdGenerator } from "../services/IdGenerator"
 import { HashManager } from "../services/HashManager"
 import { TokenManager } from "../services/TokenManager"
 import { AddressDatabase } from "../database/AddressDatabase"
+import { PhoneDatabase } from "../database/PhoneDatabase"
 
 
 export const userRouter = express.Router()
@@ -17,7 +18,8 @@ const newUserController = new UserController(
         new IdGenerator(),
         new HashManager(),
         new TokenManager(),
-        new AddressDatabase()
+        new AddressDatabase(),
+        new PhoneDatabase()
     )
 )
 

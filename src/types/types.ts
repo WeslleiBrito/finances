@@ -11,7 +11,7 @@ export interface UserModel {
     lastName: string
     cpfCnpj: string,
     address: AddressModel[],
-    foneNumber: string,
+    foneNumber: PhoneModel[],
     email: string,
     password: string,
     role: USER_ROLES,
@@ -24,7 +24,6 @@ export interface UserDB {
     name: string,
     last_name: string,
     cpf_cnpj: string,
-    fone_number: string,
     email: string,
     password: string,
     role: USER_ROLES,
@@ -36,7 +35,6 @@ export interface EditUserDB {
     id: string,
     name: string,
     last_name: string,
-    fone_number: string,
     password: string,
     updated_at: string
 }
@@ -69,4 +67,20 @@ export interface AddressDB {
     house_number: string,
     created_at: string,
     updated_at: string
+}
+
+export interface PhonesDB {
+    id: string,
+    phone_number: string,
+    user_id: string,
+    created_at: string,
+    updated_at: string
+}
+
+export interface PhoneModel {
+    id: string,
+    phoneNumber: string,
+    userId: string,
+    createdAt: string,
+    updatedAt: string
 }

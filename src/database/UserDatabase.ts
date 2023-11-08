@@ -34,9 +34,9 @@ export class UserDatabase extends BaseDatabase {
 
     public editAccount = async (input: EditUserDB): Promise<void> => {
         
-        const {id, name, last_name, fone_number, password, updated_at} = input
+        const {id, name, last_name, password, updated_at} = input
 
-        await UserDatabase.connection(UserDatabase.TABLE_USER).update({name, last_name, fone_number, password, updated_at}).where({id})
+        await UserDatabase.connection(UserDatabase.TABLE_USER).update({name, last_name, password, updated_at}).where({id})
 
     }
 

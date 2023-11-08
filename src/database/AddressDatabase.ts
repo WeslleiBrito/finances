@@ -6,7 +6,7 @@ export class AddressDatabase extends BaseDatabase {
 
     public static TABLE_ADDRESS: string = "addresses"
 
-    public createAddress = async (input: Array<AddressDB>) => {
+    public createAddress = async (input: AddressDB[]) => {
 
         await AddressDatabase.connection(AddressDatabase.TABLE_ADDRESS).insert(input)
 

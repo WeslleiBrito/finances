@@ -21,7 +21,7 @@ export class UserController {
                 lastName,
                 cpfCnpj,
                 addresses,
-                foneNumber,
+                phoneNumber,
                 email,
                 password
             } = req.body
@@ -32,7 +32,7 @@ export class UserController {
                     lastName,
                     cpfCnpj,
                     addresses,
-                    foneNumber,
+                    phoneNumber,
                     email,
                     password
                 }
@@ -45,10 +45,12 @@ export class UserController {
         } catch (error) {
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
+                console.log(error);
             } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
             } else {
                 res.send("Erro inesperado\n " + error)
+                
             }
         }
 

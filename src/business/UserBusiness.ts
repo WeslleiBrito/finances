@@ -1,4 +1,5 @@
 import { AddressDatabase } from "../database/AddressDatabase";
+import { PhoneDatabase } from "../database/PhoneDatabase";
 import { UserDatabase } from "../database/UserDatabase";
 import { InputDeleteAccountDTO, OutputDeleteAccountDTO } from "../dtos/user/InputDeleteAccount.dto";
 import { InputEditAccountDTO, OutputEditAccountDTO } from "../dtos/user/InputEditAccount.dto";
@@ -9,11 +10,12 @@ import { ConflictError } from "../errors/ConflictError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 import { Address } from "../models/Address";
+import { Phone } from "../models/Phone";
 import { User } from "../models/User";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
-import { AddressDB, AddressModel, USER_ROLES} from "../types/types";
+import { AddressDB, AddressModel, PhoneModel, PhonesDB, USER_ROLES} from "../types/types";
 
 
 export class UserBusiness implements UserBusinessI{
@@ -22,7 +24,8 @@ export class UserBusiness implements UserBusinessI{
         private idGenerator: IdGenerator,
         private hashManager: HashManager,
         private tokenManager: TokenManager,
-        private addressDatabase: AddressDatabase
+        private addressDatabase: AddressDatabase,
+        private phoneDatabase: PhoneDatabase
     ){}
 
     public signup = async (input: InputSignupDTO): Promise<OutputSignupDTO> => {
@@ -31,7 +34,7 @@ export class UserBusiness implements UserBusinessI{
             lastName,
             cpfCnpj,
             addresses,
-            foneNumber,
+            phoneNumber,
             email,
             password
         } = input
@@ -67,36 +70,33 @@ export class UserBusiness implements UserBusinessI{
 
         const newAddresses = new Address(addressesComplet)
 
+        const phones: PhoneModel[] = phoneNumber.map(phone => {
+            return {
+                createdAt: newDate,
+                id: this.idGenerator.generate(),
+                phoneNumber: phone.number,
+                updatedAt: newDate,
+                userId: id
+            }
+        })
+
+        const newPhones = new Phone(phones)
+
         const newUser = new User(
             id,
             name,
             lastName,
             cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''),
             newAddresses,
-            foneNumber,
+            newPhones,
             email,
             hashPassword,
             USER_ROLES.NORMAL,
             newDate,
             newDate
         )
-
-        await this.userDatabase.signup(
-            {
-                id: newUser.getId(),
-                name: newUser.getName(),
-                cpf_cnpj: newUser.getCpfCnpj(),
-                last_name: newUser.getLastName(),
-                fone_number: newUser.getFoneNumber(),
-                email: newUser.getEmail(),
-                password: newUser.getPassword(),
-                role: newUser.getRole(),
-                created_at: newUser.getCreatedAt(),
-                updated_at: newUser.getUpdateAt()
-            }
-        )
         
-        const newAaddressesDB: AddressDB[] = newAddresses.getAdresses().map(address => {
+        const addressesDB: AddressDB[] = newAddresses.getAdresses().map(address => {
 
             return {
                 cep: address.cep,
@@ -114,7 +114,33 @@ export class UserBusiness implements UserBusinessI{
             }
         })
 
-        await this.addressDatabase.createAddress(newAaddressesDB)
+        const phonesDB: PhonesDB[] = newPhones.getPhones().map(phone => {
+
+            return {
+                created_at: phone.createdAt,
+                id: phone.id,
+                phone_number: phone.phoneNumber,
+                updated_at: phone.updatedAt,
+                user_id: phone.userId
+            }
+        })
+
+        await this.userDatabase.signup(
+            {
+                id: newUser.getId(),
+                name: newUser.getName(),
+                cpf_cnpj: newUser.getCpfCnpj(),
+                last_name: newUser.getLastName(),
+                email: newUser.getEmail(),
+                password: newUser.getPassword(),
+                role: newUser.getRole(),
+                created_at: newUser.getCreatedAt(),
+                updated_at: newUser.getUpdateAt()
+            }
+        )
+        
+        await this.addressDatabase.createAddress(addressesDB)
+        await this.phoneDatabase.createPhone(phonesDB)
 
         const token = this.tokenManager.createToken(
             {
@@ -204,7 +230,24 @@ export class UserBusiness implements UserBusinessI{
             }
         })
 
+        const phonesExist = await this.phoneDatabase.findPhoneByUserId(id)
+
+        if(!phonesExist){
+            throw new NotFoundError("O celular/telefone informada não existe")
+        }
+
+        const phones: PhoneModel[] = phonesExist.map(phone => {
+            return {
+                createdAt: phone.created_at,
+                id: phone.id,
+                phoneNumber: phone.phone_number,
+                updatedAt: phone.updated_at,
+                userId: phone.user_id
+            }
+        })
+
         const addressObject = new Address(addresses)
+        const phonesObject = new Phone(phones)
 
         const newUser = new User(
             account.id,
@@ -212,7 +255,7 @@ export class UserBusiness implements UserBusinessI{
             account.last_name,
             account.cpf_cnpj,
             addressObject,
-            account.fone_number,
+            phonesObject,
             account.email,
             account.password,
             account.role,
@@ -228,7 +271,6 @@ export class UserBusiness implements UserBusinessI{
             id: newUser.getId(),
             name: newUser.getName(),
             last_name: newUser.getLastName(),
-            fone_number: newUser.getFoneNumber(),
             password: newUser.getPassword(),
             updated_at: newUser.getUpdateAt()
         })

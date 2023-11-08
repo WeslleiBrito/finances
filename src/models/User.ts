@@ -1,5 +1,6 @@
-import { AddressModel, USER_ROLES, UserModel } from "../types/types";
+import { AddressModel, PhoneModel, USER_ROLES, UserModel } from "../types/types";
 import { Address } from "./Address";
+import { Phone } from "./Phone";
 
 export class User {
 
@@ -9,7 +10,7 @@ export class User {
         private lastName: string,
         private cpfCnpj: string,
         private addresses: Address,
-        private foneNumber: string,
+        private foneNumber: Phone,
         private email: string,
         private password: string,
         private role: USER_ROLES,
@@ -39,8 +40,8 @@ export class User {
     }
 
     
-    public getFoneNumber = (): string => {
-        return this.foneNumber
+    public getFoneNumbers = (): PhoneModel[] => {
+        return this.foneNumber.getPhones()
     }
 
     public getEmail = (): string => {
@@ -71,7 +72,7 @@ export class User {
             lastName: this.lastName,
             cpfCnpj: this.cpfCnpj,
             address: this.addresses.getAdresses(),
-            foneNumber: this.foneNumber,
+            foneNumber: this.foneNumber.getPhones(),
             email: this.email,
             password: this.password,
             role: this.role,
@@ -86,11 +87,6 @@ export class User {
 
     public setPassword = (newPassword: string): void => {
         this.password = newPassword
-    }
-
-
-    public setFoneNumber = (newFoneNumber: string): void => {
-        this.foneNumber = newFoneNumber
     }
 
     public setUpdateAt = (newDate: string): void => {

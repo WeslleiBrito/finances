@@ -4,7 +4,7 @@ export interface InputSignupDTO {
     name: string,
     lastName: string,
     cpfCnpj: string,
-    addresses: Array<{
+    addresses: {
         cep: string,
         country: string,
         state: string,
@@ -12,8 +12,8 @@ export interface InputSignupDTO {
         district: string,
         road: string,
         houseNumber: string
-    }>,
-    foneNumber: string,
+    }[],
+    phoneNumber: {number: string}[],
     email: string,
     password: string
 }
@@ -22,6 +22,11 @@ export interface OutputSignupDTO {
     message: string,
     token: string
 }
+
+export const PhoneNumberSchema = z.object({
+  number: z.string({required_error: "Número do celular/telefone não informado.",  invalid_type_error: "Espera-se que o número do celular/telefone venha como string."})
+  .regex(/^(?:(?:\+|00)55)?(?:\(\d{2}\)|\d{2})\s?9?\d{4}-?\d{4}$/, {message: "Celular ou telefone inválido"})
+})
 
 export const AddressSchema = z.object({
     cep: z.string({ required_error: "CEP não informado.", invalid_type_error: "CEP deve ser uma string." })
@@ -49,8 +54,7 @@ export const InputSignupSchema = z.object(
         cpfCnpj: z.string({required_error: "CPF ou CNPJ não foi informado", invalid_type_error: "O CPF ou CNPJ deve ser uma string"})
         .regex(/^(\d{3}\.?\d{3}\.?\d{3}-?\d{2}|\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}|\d{11}|\d{14})$/, {message: "CPF ou CNPJ inválido."}),
         addresses: z.array(AddressSchema),
-        foneNumber: z.string({required_error: "Número do celular não informado.",  invalid_type_error: "Espera-se que o número do celular venha como string."})
-        .min(11, {message: "O número do telefone precisa ter pelo menos 11 caracteres."}),
+        phoneNumber: z.array(PhoneNumberSchema),
         email: z.string({required_error: "Email não informado.",  invalid_type_error: "Espera-se que o email venha como string."})
         .email({message: "Email inválido."}),
         password: z.string({required_error: "Password não informado.",  invalid_type_error: "Espera-se que o password venha como string."})
