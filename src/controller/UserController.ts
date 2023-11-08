@@ -6,7 +6,7 @@ import { InputSignupSchema, OutputSignupDTO } from "../dtos/user/InputSignup.dto
 import { InputLoginSchema } from "../dtos/user/InputLogin.dto";
 import { InputEditAccountSchema } from "../dtos/user/InputEditAccount.dto";
 import { InputDeleteAccountSchema } from "../dtos/user/InputDeleteAccount.dto";
-
+import {AxiosError} from 'axios'
 
 export class UserController {
 
@@ -48,7 +48,9 @@ export class UserController {
                 console.log(error);
             } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
-            } else {
+            } else if (error instanceof AxiosError) {
+                res.status(404).send("CEP inválido!")
+            }else {
                 res.send("Erro inesperado\n " + error)
                 
             }

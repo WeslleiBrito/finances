@@ -14,6 +14,7 @@ import { Phone } from "../models/Phone";
 import { User } from "../models/User";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
+import { SearchCEP } from "../services/SearchCEP";
 import { TokenManager } from "../services/TokenManager";
 import { ValidateCPFCNPJ } from "../services/ValidateCPFCNPJ";
 import { AddressDB, AddressModel, PhoneModel, PhonesDB, USER_ROLES} from "../types/types";
@@ -27,7 +28,8 @@ export class UserBusiness implements UserBusinessI{
         private tokenManager: TokenManager,
         private addressDatabase: AddressDatabase,
         private phoneDatabase: PhoneDatabase,
-        private validateCPFCNPJ: ValidateCPFCNPJ
+        private validateCPFCNPJ: ValidateCPFCNPJ,
+        private searchCEP: SearchCEP
     ){}
 
     public signup = async (input: InputSignupDTO): Promise<OutputSignupDTO> => {
@@ -41,10 +43,16 @@ export class UserBusiness implements UserBusinessI{
             password
         } = input
 
+        
         const cpfCnpjValid = this.validateCPFCNPJ.validate(cpfCnpj)
 
         const cpfCnpjExist = await this.userDatabase.findUserByCPFCNPJ(cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''))
         
+      
+        addresses.forEach(async (address) => {
+            await this.searchCEP.getCep(address.cep)
+        })
+
         if(cpfCnpjExist){
             throw new ConflictError(
                 cpfCnpj.replace(/[^a-zA-Z0-9]/g, '').length === 11 ? "O CPF informado já exite." : "O CNPJ informado já exite."

@@ -8,6 +8,7 @@ import { TokenManager } from "../services/TokenManager"
 import { AddressDatabase } from "../database/AddressDatabase"
 import { PhoneDatabase } from "../database/PhoneDatabase"
 import { ValidateCPFCNPJ } from "../services/ValidateCPFCNPJ"
+import { SearchCEP } from "../services/SearchCEP"
 
 
 export const userRouter = express.Router()
@@ -21,7 +22,8 @@ const newUserController = new UserController(
         new TokenManager(),
         new AddressDatabase(),
         new PhoneDatabase(),
-        new ValidateCPFCNPJ()
+        new ValidateCPFCNPJ(),
+        new SearchCEP()
     )
 )
 
