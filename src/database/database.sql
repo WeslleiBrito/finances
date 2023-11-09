@@ -3,8 +3,8 @@
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    cpf_cnpj TEXT NOT NULL UNIQUE,
+    last_name TEXT,
+    cpf_cnpj TEXT UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL, 
     role TEXT DEFAULT('NORMAL') NOT NULL,

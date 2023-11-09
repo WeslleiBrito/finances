@@ -31,6 +31,16 @@ export interface UserDB {
     updated_at: string
 }
 
+export interface UserSignupDB {
+    id: string,
+    name: string,
+    email: string,
+    password: string,
+    role: USER_ROLES,
+    created_at: string,
+    updated_at: string
+}
+
 export interface EditUserDB {
     id: string,
     name: string,
@@ -83,4 +93,14 @@ export interface PhoneModel {
     userId: string,
     createdAt: string,
     updatedAt: string
+}
+
+export interface AddressInputDTO {
+    cep: string,
+    country: string,
+    state: string,
+    city: string,
+    district: string,
+    road: string,
+    houseNumber: string
 }

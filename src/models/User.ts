@@ -9,8 +9,8 @@ export class User {
         private name: string,
         private lastName: string,
         private cpfCnpj: string,
-        private addresses: Address,
-        private foneNumber: Phone,
+        private addresses: AddressModel[],
+        private foneNumber: PhoneModel[],
         private email: string,
         private password: string,
         private role: USER_ROLES,
@@ -36,12 +36,12 @@ export class User {
     }
 
     public getAddress = (): AddressModel[] => {
-        return this.addresses.getAdresses()
+        return this.addresses
     }
 
     
     public getFoneNumbers = (): PhoneModel[] => {
-        return this.foneNumber.getPhones()
+        return this.foneNumber
     }
 
     public getEmail = (): string => {
@@ -71,8 +71,8 @@ export class User {
             name: this.name,
             lastName: this.lastName,
             cpfCnpj: this.cpfCnpj,
-            address: this.addresses.getAdresses(),
-            foneNumber: this.foneNumber.getPhones(),
+            address: this.addresses,
+            foneNumber: this.foneNumber,
             email: this.email,
             password: this.password,
             role: this.role,

@@ -17,8 +17,15 @@ import { IdGenerator } from "../services/IdGenerator";
 import { SearchCEP } from "../services/SearchCEP";
 import { TokenManager } from "../services/TokenManager";
 import { ValidateCPFCNPJ } from "../services/ValidateCPFCNPJ";
-import { AddressDB, AddressModel, PhoneModel, PhonesDB, USER_ROLES} from "../types/types";
+import { AddressDB, AddressInputDTO, AddressModel, PhoneModel, PhonesDB, USER_ROLES} from "../types/types";
+import axios from "axios";
 
+const fetchCepData = async (addresses: AddressInputDTO[]) => {
+    for (const address of addresses) {
+      const cleanedCep = address.cep.replace(/[^a-zA-Z0-9]/g, '');
+      await axios.get(`https://brasilapi.com.br/api/cep/v1/${cleanedCep}`);
+    }
+  }
 
 export class UserBusiness implements UserBusinessI{
     constructor (
@@ -34,24 +41,15 @@ export class UserBusiness implements UserBusinessI{
 
     public signup = async (input: InputSignupDTO): Promise<OutputSignupDTO> => {
 
-        const {name,
-            lastName,
-            cpfCnpj,
-            addresses,
-            phoneNumber,
-            email,
-            password
-        } = input
+        const {name, email, password } = input
 
         
-        const cpfCnpjValid = this.validateCPFCNPJ.validate(cpfCnpj)
+        /* const cpfCnpjValid = this.validateCPFCNPJ.validate(cpfCnpj)
 
         const cpfCnpjExist = await this.userDatabase.findUserByCPFCNPJ(cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''))
         
       
-        addresses.forEach(async (address) => {
-            await this.searchCEP.getCep(address.cep)
-        })
+        await fetchCepData(addresses)
 
         if(cpfCnpjExist){
             throw new ConflictError(
@@ -63,7 +61,7 @@ export class UserBusiness implements UserBusinessI{
             throw new BadRequestError(
                 cpfCnpj.replace(/[^a-zA-Z0-9]/g, '').length === 11 ? "O CPF informado não exite." : "O CNPJ informado não exite."
             )
-        }
+        } */
 
         const emailExist = await this.userDatabase.findUserByEmail(email)
 
@@ -76,7 +74,7 @@ export class UserBusiness implements UserBusinessI{
         const hashPassword = await this.hashManager.hash(password)
         const newDate = new Date().toISOString()
 
-        const addressesComplet: AddressModel[] = addresses.map(address => {
+        /* const addressesComplet: AddressModel[] = addresses.map(address => {
 
             return {
                 cep: address.cep,
@@ -104,17 +102,17 @@ export class UserBusiness implements UserBusinessI{
                 updatedAt: newDate,
                 userId: id
             }
-        })
+        }) */
 
-        const newPhones = new Phone(phones)
+        /* const newPhones = new Phone(phones) */
 
         const newUser = new User(
             id,
             name,
-            lastName,
-            cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''),
-            newAddresses,
-            newPhones,
+            "",
+            "",
+            [],
+            [],
             email,
             hashPassword,
             USER_ROLES.NORMAL,
@@ -122,7 +120,7 @@ export class UserBusiness implements UserBusinessI{
             newDate
         )
         
-        const addressesDB: AddressDB[] = newAddresses.getAdresses().map(address => {
+        /* const addressesDB: AddressDB[] = newAddresses.getAdresses().map(address => {
 
             return {
                 cep: address.cep,
@@ -149,14 +147,12 @@ export class UserBusiness implements UserBusinessI{
                 updated_at: phone.updatedAt,
                 user_id: phone.userId
             }
-        })
+        }) */
 
         await this.userDatabase.signup(
             {
                 id: newUser.getId(),
                 name: newUser.getName(),
-                cpf_cnpj: newUser.getCpfCnpj(),
-                last_name: newUser.getLastName(),
                 email: newUser.getEmail(),
                 password: newUser.getPassword(),
                 role: newUser.getRole(),
@@ -165,8 +161,8 @@ export class UserBusiness implements UserBusinessI{
             }
         )
 
-        await this.addressDatabase.createAddress(addressesDB)
-        await this.phoneDatabase.createPhone(phonesDB)
+        /* await this.addressDatabase.createAddress(addressesDB)
+        await this.phoneDatabase.createPhone(phonesDB) */
 
         const token = this.tokenManager.createToken(
             {
@@ -280,8 +276,8 @@ export class UserBusiness implements UserBusinessI{
             account.name,
             account.last_name,
             account.cpf_cnpj,
-            addressObject,
-            phonesObject,
+            addresses,
+            phones,
             account.email,
             account.password,
             account.role,

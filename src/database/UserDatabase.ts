@@ -1,4 +1,4 @@
-import { EditUserDB, UserDB } from "../types/types";
+import { EditUserDB, UserDB, UserSignupDB } from "../types/types";
 import { BaseDatabase } from "./BaseDatabase";
 
 
@@ -6,7 +6,7 @@ export class UserDatabase extends BaseDatabase {
 
     public static TABLE_USER: string = "users"
 
-    public signup = async (input: UserDB): Promise<void> => {
+    public signup = async (input: UserSignupDB): Promise<void> => {
         
         await UserDatabase.connection(UserDatabase.TABLE_USER).insert(input)
     }

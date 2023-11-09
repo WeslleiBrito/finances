@@ -125,7 +125,9 @@ export class UserController {
                 res.status(400).send(error.issues)
             } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
-            } else {
+            } else if (error instanceof AxiosError) {
+                res.status(404).send("CEP inválido!")
+            }else {
                 res.send("Erro inesperado\n " + error)
             }
         }
