@@ -2,10 +2,15 @@ import z from "zod"
 import { AddressInputDTO } from "../../types/types";
 
 export interface InputCompleteRegistrationDTO {
+    id: string,
     lastName: string,
     cpfCnpj: string,
     addresses: AddressInputDTO[],
     phoneNumber: {number: string}[]
+}
+
+export interface OutputCompleteRegistrationDTO {
+    message: string,
 }
 
 export const PhoneNumberSchema = z.object({
@@ -33,6 +38,7 @@ export const AddressSchema = z.object({
 
 export const InputCompleteRegistrationSchema = z.object(
     {
+        id: z.string({required_error: "O id do usuário não foi informado"}),
         lastName: z.string({required_error: "O sobrenome é obrigatório", invalid_type_error: "O sobrenome deve ser uma string"})
         .min(3, {message: "O sobrenome precisa ter pelo menos 3 caracteres."}),
         cpfCnpj: z.string({required_error: "CPF ou CNPJ não foi informado", invalid_type_error: "O CPF ou CNPJ deve ser uma string"})

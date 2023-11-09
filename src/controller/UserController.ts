@@ -7,6 +7,7 @@ import { InputLoginSchema } from "../dtos/user/InputLogin.dto";
 import { InputEditAccountSchema } from "../dtos/user/InputEditAccount.dto";
 import { InputDeleteAccountSchema } from "../dtos/user/InputDeleteAccount.dto";
 import {AxiosError} from 'axios'
+import { InputCompleteRegistrationSchema, OutputCompleteRegistrationDTO } from "../dtos/user/CompleteRegistration";
 
 export class UserController {
 
@@ -39,6 +40,44 @@ export class UserController {
             )
 
             const output: OutputSignupDTO = await this.userBusiness.signup(input)
+
+            res.status(201).send(output)
+
+        } catch (error) {
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+                console.log(error);
+            } else if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.send("Erro inesperado\n " + error)
+                
+            }
+        }
+
+    }
+
+    public completeRegistrationUser = async (req: Request, res: Response) => {
+
+        try {
+            const { 
+                lastName,
+                cpfCnpj,
+                addresses,
+                phoneNumber
+            } = req.body
+
+            const input = InputCompleteRegistrationSchema.parse(
+                {
+                    id: req.params.id,
+                    lastName,
+                    cpfCnpj,
+                    addresses,
+                    phoneNumber
+                }
+            )
+
+            const output: OutputCompleteRegistrationDTO = await this.userBusiness.completeRegistrationUser(input)
 
             res.status(201).send(output)
 

@@ -29,5 +29,6 @@ const newUserController = new UserController(
 
 userRouter.post('/signup', newUserController.signup)
 userRouter.post('/login', newUserController.login)
+userRouter.post('/account/completeRegistration/:id', newUserController.completeRegistrationUser)
 userRouter.put('/account/:id', newUserController.editAccount)
 userRouter.delete('/account/:id', newUserController.deleteAccount)

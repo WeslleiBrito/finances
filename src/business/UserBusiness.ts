@@ -1,6 +1,7 @@
 import { AddressDatabase } from "../database/AddressDatabase";
 import { PhoneDatabase } from "../database/PhoneDatabase";
 import { UserDatabase } from "../database/UserDatabase";
+import { InputCompleteRegistrationDTO, OutputCompleteRegistrationDTO } from "../dtos/user/CompleteRegistration";
 import { InputDeleteAccountDTO, OutputDeleteAccountDTO } from "../dtos/user/InputDeleteAccount.dto";
 import { InputEditAccountDTO, OutputEditAccountDTO } from "../dtos/user/InputEditAccount.dto";
 import { InputLoginDTO, OutputLoginDTO } from "../dtos/user/InputLogin.dto";
@@ -10,22 +11,14 @@ import { ConflictError } from "../errors/ConflictError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 import { Address } from "../models/Address";
-import { Phone } from "../models/Phone";
 import { User } from "../models/User";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
 import { SearchCEP } from "../services/SearchCEP";
 import { TokenManager } from "../services/TokenManager";
 import { ValidateCPFCNPJ } from "../services/ValidateCPFCNPJ";
-import { AddressDB, AddressInputDTO, AddressModel, PhoneModel, PhonesDB, USER_ROLES} from "../types/types";
-import axios from "axios";
+import { AddressDB, AddressModel, PhoneModel, PhonesDB, USER_ROLES} from "../types/types";
 
-const fetchCepData = async (addresses: AddressInputDTO[]) => {
-    for (const address of addresses) {
-      const cleanedCep = address.cep.replace(/[^a-zA-Z0-9]/g, '');
-      await axios.get(`https://brasilapi.com.br/api/cep/v1/${cleanedCep}`);
-    }
-  }
 
 export class UserBusiness implements UserBusinessI{
     constructor (
@@ -43,26 +36,6 @@ export class UserBusiness implements UserBusinessI{
 
         const {name, email, password } = input
 
-        
-        /* const cpfCnpjValid = this.validateCPFCNPJ.validate(cpfCnpj)
-
-        const cpfCnpjExist = await this.userDatabase.findUserByCPFCNPJ(cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''))
-        
-      
-        await fetchCepData(addresses)
-
-        if(cpfCnpjExist){
-            throw new ConflictError(
-                cpfCnpj.replace(/[^a-zA-Z0-9]/g, '').length === 11 ? "O CPF informado já exite." : "O CNPJ informado já exite."
-            )
-        }
-        
-        if(!cpfCnpjValid){
-            throw new BadRequestError(
-                cpfCnpj.replace(/[^a-zA-Z0-9]/g, '').length === 11 ? "O CPF informado não exite." : "O CNPJ informado não exite."
-            )
-        } */
-
         const emailExist = await this.userDatabase.findUserByEmail(email)
 
         if(emailExist) {
@@ -74,7 +47,88 @@ export class UserBusiness implements UserBusinessI{
         const hashPassword = await this.hashManager.hash(password)
         const newDate = new Date().toISOString()
 
-        /* const addressesComplet: AddressModel[] = addresses.map(address => {
+        const newUser = new User(
+            id,
+            name,
+            "",
+            "",
+            [],
+            [],
+            email,
+            hashPassword,
+            USER_ROLES.NORMAL,
+            newDate,
+            newDate
+        )
+
+        await this.userDatabase.signup(
+            {
+                id: newUser.getId(),
+                name: newUser.getName(),
+                email: newUser.getEmail(),
+                password: newUser.getPassword(),
+                role: newUser.getRole(),
+                created_at: newUser.getCreatedAt(),
+                updated_at: newUser.getUpdateAt()
+            }
+        )
+
+        const token = this.tokenManager.createToken(
+            {
+                id: newUser.getId(),
+                name: newUser.getName(),
+                role: newUser.getRole()
+            }
+        )
+
+        return {
+            message: "Cadastro efetuado com sucesso!",
+            token
+        }
+        
+    }
+    public completeRegistrationUser = async (input: InputCompleteRegistrationDTO): Promise<OutputCompleteRegistrationDTO> => {
+
+        const {id, lastName, cpfCnpj, addresses, phoneNumber } = input
+        
+        const idExist = await this.userDatabase.findUserById(id)
+
+        if(!idExist){
+            throw new NotFoundError("O id informado não existe.")
+        }
+
+        if(idExist.cpf_cnpj){
+            throw new UnauthorizedError("Não é permitido modificar o cpf")
+        }
+
+        const cpfCnpjValid = this.validateCPFCNPJ.validate(cpfCnpj)
+
+        const cpfCnpjExist = await this.userDatabase.findUserByCPFCNPJ(cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''))
+        
+        if(!cpfCnpjValid){
+            throw new BadRequestError(
+                cpfCnpj.replace(/[^a-zA-Z0-9]/g, '').length === 11 ? "O CPF informado não exite." : "O CNPJ informado não exite."
+            )
+        }
+
+        if(cpfCnpjExist){
+            throw new ConflictError(
+                cpfCnpj.replace(/[^a-zA-Z0-9]/g, '').length === 11 ? "O CPF informado já exite." : "O CNPJ informado já exite."
+            )
+        }
+        
+
+        const name = idExist.name
+        const email = idExist.email
+        const password = idExist.password
+        const role = idExist.role
+        const createdAt = idExist.created_at
+        
+        await this.searchCEP.getCep(addresses)
+
+        const newDate = new Date().toISOString()
+
+        const addressesComplet: AddressModel[] = addresses.map(address => {
 
             return {
                 cep: address.cep,
@@ -102,25 +156,24 @@ export class UserBusiness implements UserBusinessI{
                 updatedAt: newDate,
                 userId: id
             }
-        }) */
+        })
 
-        /* const newPhones = new Phone(phones) */
 
         const newUser = new User(
             id,
             name,
-            "",
-            "",
-            [],
-            [],
+            lastName,
+            cpfCnpj,
+            addressesComplet,
+            phones,
             email,
-            hashPassword,
-            USER_ROLES.NORMAL,
-            newDate,
+            password,
+            role,
+            createdAt,
             newDate
         )
         
-        /* const addressesDB: AddressDB[] = newAddresses.getAdresses().map(address => {
+        const addressesDB: AddressDB[] = newAddresses.getAdresses().map(address => {
 
             return {
                 cep: address.cep,
@@ -138,7 +191,7 @@ export class UserBusiness implements UserBusinessI{
             }
         })
 
-        const phonesDB: PhonesDB[] = newPhones.getPhones().map(phone => {
+        const phonesDB: PhonesDB[] = phones.map(phone => {
 
             return {
                 created_at: phone.createdAt,
@@ -147,22 +200,19 @@ export class UserBusiness implements UserBusinessI{
                 updated_at: phone.updatedAt,
                 user_id: phone.userId
             }
-        }) */
+        })
 
-        await this.userDatabase.signup(
-            {
-                id: newUser.getId(),
-                name: newUser.getName(),
-                email: newUser.getEmail(),
-                password: newUser.getPassword(),
-                role: newUser.getRole(),
-                created_at: newUser.getCreatedAt(),
-                updated_at: newUser.getUpdateAt()
-            }
-        )
+        await this.userDatabase.editAccount({
+            id: newUser.getId(),
+            name: newUser.getName(),
+            cpf_cnpj: newUser.getCpfCnpj(),
+            last_name: newUser.getLastName(),
+            password: newUser.getPassword(),
+            updated_at: newUser.getUpdateAt()
+        })
 
-        /* await this.addressDatabase.createAddress(addressesDB)
-        await this.phoneDatabase.createPhone(phonesDB) */
+        await this.addressDatabase.createAddress(addressesDB)
+        await this.phoneDatabase.createPhone(phonesDB)
 
         const token = this.tokenManager.createToken(
             {
@@ -173,8 +223,7 @@ export class UserBusiness implements UserBusinessI{
         )
 
         return {
-            message: "Cadastro efetuado com sucesso!",
-            token
+            message: "Cadastro finalizado com sucesso!"
         }
         
     }
@@ -267,9 +316,6 @@ export class UserBusiness implements UserBusinessI{
                 userId: phone.user_id
             }
         })
-
-        const addressObject = new Address(addresses)
-        const phonesObject = new Phone(phones)
 
         const newUser = new User(
             account.id,

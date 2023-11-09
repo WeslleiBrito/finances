@@ -1,5 +1,4 @@
 import z from "zod"
-import { AddressInputDTO } from "../../types/types";
 
 export interface InputSignupDTO {
     name: string,

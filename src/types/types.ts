@@ -44,6 +44,7 @@ export interface UserSignupDB {
 export interface EditUserDB {
     id: string,
     name: string,
+    cpf_cnpj?: string,
     last_name: string,
     password: string,
     updated_at: string
