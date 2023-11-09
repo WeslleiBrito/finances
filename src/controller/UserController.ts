@@ -7,7 +7,7 @@ import { InputLoginSchema } from "../dtos/user/InputLogin.dto";
 import { InputEditAccountSchema } from "../dtos/user/InputEditAccount.dto";
 import { InputDeleteAccountSchema } from "../dtos/user/InputDeleteAccount.dto";
 import {AxiosError} from 'axios'
-import { InputCompleteRegistrationSchema, OutputCompleteRegistrationDTO } from "../dtos/user/CompleteRegistration";
+import { InputCompleteRegistrationSchema, OutputCompleteRegistrationDTO } from "../dtos/user/CompleteRegistration.dto";
 
 export class UserController {
 

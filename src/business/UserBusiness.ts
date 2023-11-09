@@ -1,7 +1,7 @@
 import { AddressDatabase } from "../database/AddressDatabase";
 import { PhoneDatabase } from "../database/PhoneDatabase";
 import { UserDatabase } from "../database/UserDatabase";
-import { InputCompleteRegistrationDTO, OutputCompleteRegistrationDTO } from "../dtos/user/CompleteRegistration";
+import { InputCompleteRegistrationDTO, OutputCompleteRegistrationDTO } from "../dtos/user/CompleteRegistration.dto";
 import { InputDeleteAccountDTO, OutputDeleteAccountDTO } from "../dtos/user/InputDeleteAccount.dto";
 import { InputEditAccountDTO, OutputEditAccountDTO } from "../dtos/user/InputEditAccount.dto";
 import { InputLoginDTO, OutputLoginDTO } from "../dtos/user/InputLogin.dto";
@@ -87,6 +87,7 @@ export class UserBusiness implements UserBusinessI{
         }
         
     }
+
     public completeRegistrationUser = async (input: InputCompleteRegistrationDTO): Promise<OutputCompleteRegistrationDTO> => {
 
         const {id, lastName, cpfCnpj, addresses, phoneNumber } = input

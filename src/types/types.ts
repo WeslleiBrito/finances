@@ -105,3 +105,14 @@ export interface AddressInputDTO {
     road: string,
     houseNumber: string
 }
+
+export interface EditeAddressInputDTO {
+    id: string,
+    cep?: string,
+    country?: string,
+    state?: string,
+    city?: string,
+    district?: string,
+    road?: string,
+    houseNumber?: string
+}
