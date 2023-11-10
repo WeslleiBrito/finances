@@ -116,3 +116,11 @@ export interface EditeAddressInputDTO {
     road?: string,
     houseNumber?: string
 }
+
+interface UserDBFind extends UserDB {
+    
+}
+
+export interface GetUserDB extends UserDBFind {
+    
+}

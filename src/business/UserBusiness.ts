@@ -164,7 +164,7 @@ export class UserBusiness implements UserBusinessI{
             id,
             name,
             lastName,
-            cpfCnpj,
+            cpfCnpj.replace(/[^a-zA-Z0-9]/g, ''),
             addressesComplet,
             phones,
             email,
@@ -379,6 +379,10 @@ export class UserBusiness implements UserBusinessI{
             message: "Conta deletada com sucesso!"
         }
     }
+
+    public findAllUser = async () => {
+        return this.userDatabase.findAllUser()
+    } 
 }
 
 export interface UserBusinessI {

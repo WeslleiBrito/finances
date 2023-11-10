@@ -1,4 +1,4 @@
-import { EditUserDB, UserDB, UserSignupDB } from "../types/types";
+import { EditUserDB, GetUserDB, UserDB, UserSignupDB } from "../types/types";
 import { BaseDatabase } from "./BaseDatabase";
 
 
@@ -11,9 +11,19 @@ export class UserDatabase extends BaseDatabase {
         await UserDatabase.connection(UserDatabase.TABLE_USER).insert(input)
     }
 
-    public findUserById = async (id: string): Promise<UserDB | undefined> => {
+    public findUserById = async (id: string): Promise<GetUserDB | undefined> => {
         
         const [result]: UserDB[] | undefined[] = await UserDatabase.connection(UserDatabase.TABLE_USER).where({id})
+
+        return result
+    }
+
+    public findAllUser = async (): Promise<GetUserDB[] | undefined> => {
+        
+        const result: UserDB[] | undefined = await UserDatabase.connection(UserDatabase.TABLE_USER).select("*")
+        .from(UserDatabase.TABLE_USER)
+        .leftJoin('addresses', 'users.id', 'addresses.user_id')
+        .leftJoin('phones', 'users.id', 'phones.user_id')
 
         return result
     }
